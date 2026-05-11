@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dunkirk 1940 — Digital Archive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root {
+--black: #0a0a0a;
+--dark: #111111;
+--grey1: #1a1a1a;
+--grey2: #242424;
+--grey3: #3a3a3a;
+--red: #8b1a1a;
+--red-bright: #c0392b;
+--red-dim: #5a1010;
+--cream: #d4c9a8;
+--cream-dim: #9a8f74;
+--white: #f0ebe0;
+--text: #c8bfa8;
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+background: var(–black);
+color: var(–text);
+font-family: ‘Crimson Text’, serif;
+font-size: 18px;
+line-height: 1.8;
+cursor: crosshair;
+}
+
+/* Grain overlay */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image: url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 256 256’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘noise’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23noise)’ opacity=‘0.04’/%3E%3C/svg%3E”);
+pointer-events: none;
+z-index: 9999;
+opacity: 0.4;
+}
+
+/* NAV */
+nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 100;
+background: rgba(10,10,10,0.95);
+border-bottom: 1px solid var(–red-dim);
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 3rem;
+height: 56px;
+backdrop-filter: blur(8px);
+}
+
+.nav-brand {
+font-family: ‘Special Elite’, monospace;
+color: var(–red-bright);
+font-size: 0.85rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+}
+
+.nav-links {
+display: flex;
+gap: 2rem;
+list-style: none;
+}
+
+.nav-links a {
+font-family: ‘Special Elite’, monospace;
+color: var(–cream-dim);
+text-decoration: none;
+font-size: 0.7rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(–cream); }
+
+/* HERO */
+.hero {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+position: relative;
+overflow: hidden;
+padding: 6rem 2rem 4rem;
+background:
+linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.7) 60%, var(–black) 100%),
+url(‘https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Dunkirk_beaches.jpg/1200px-Dunkirk_beaches.jpg’) center/cover no-repeat;
+}
+
+.hero-year {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.75rem;
+letter-spacing: 0.4em;
+color: var(–red-bright);
+text-transform: uppercase;
+margin-bottom: 1.5rem;
+animation: fadeUp 1s ease both;
+}
+
+.hero-title {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(3.5rem, 10vw, 8rem);
+font-weight: 900;
+color: var(–white);
+text-align: center;
+line-height: 0.95;
+letter-spacing: -0.02em;
+animation: fadeUp 1s ease 0.2s both;
+}
+
+.hero-title span {
+color: var(–red-bright);
+font-style: italic;
+}
+
+.hero-subtitle {
+font-family: ‘Playfair Display’, serif;
+font-style: italic;
+font-size: clamp(1rem, 2.5vw, 1.5rem);
+color: var(–cream-dim);
+text-align: center;
+margin-top: 1.5rem;
+animation: fadeUp 1s ease 0.4s both;
+}
+
+.hero-divider {
+width: 120px;
+height: 1px;
+background: linear-gradient(to right, transparent, var(–red-bright), transparent);
+margin: 2.5rem auto;
+animation: fadeUp 1s ease 0.5s both;
+}
+
+.hero-quote {
+font-family: ‘Playfair Display’, serif;
+font-style: italic;
+font-size: clamp(1rem, 2vw, 1.25rem);
+color: var(–cream);
+text-align: center;
+max-width: 700px;
+animation: fadeUp 1s ease 0.6s both;
+}
+
+.hero-quote cite {
+display: block;
+font-size: 0.85rem;
+font-style: normal;
+font-family: ‘Special Elite’, monospace;
+color: var(–red-bright);
+letter-spacing: 0.1em;
+margin-top: 0.75rem;
+}
+
+.scroll-hint {
+position: absolute;
+bottom: 2rem;
+left: 50%;
+transform: translateX(-50%);
+font-family: ‘Special Elite’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.3em;
+color: var(–cream-dim);
+text-transform: uppercase;
+animation: pulse 2s ease infinite;
+}
+
+/* SECTIONS */
+section {
+padding: 6rem 0;
+border-bottom: 1px solid var(–grey2);
+}
+
+.container {
+max-width: 1100px;
+margin: 0 auto;
+padding: 0 3rem;
+}
+
+.section-label {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.4em;
+color: var(–red-bright);
+text-transform: uppercase;
+margin-bottom: 0.75rem;
+}
+
+.section-title {
+font-family: ‘Playfair Display’, serif;
+font-size: clamp(2rem, 4vw, 3rem);
+font-weight: 700;
+color: var(–white);
+line-height: 1.1;
+margin-bottom: 3rem;
+position: relative;
+padding-bottom: 1rem;
+}
+
+.section-title::after {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0;
+width: 60px; height: 2px;
+background: var(–red-bright);
+}
+
+/* CONTEXT */
+#context { background: var(–dark); }
+
+.context-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 2px;
+}
+
+.context-card {
+background: var(–grey1);
+padding: 2.5rem;
+border-left: 3px solid var(–red-dim);
+transition: border-color 0.3s, background 0.3s;
+}
+
+.context-card:hover {
+border-color: var(–red-bright);
+background: var(–grey2);
+}
+
+.context-card h3 {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.1rem;
+color: var(–cream);
+margin-bottom: 1rem;
+font-style: italic;
+}
+
+.context-card p {
+font-size: 1rem;
+color: var(–text);
+line-height: 1.75;
+}
+
+/* PERSONALITIES */
+#personalities { background: var(–black); }
+
+.people-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1.5rem;
+}
+
+.person-card {
+background: var(–grey1);
+border: 1px solid var(–grey3);
+padding: 2rem;
+position: relative;
+overflow: hidden;
+transition: transform 0.3s, border-color 0.3s;
+}
+
+.person-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: var(–red-bright);
+transform: scaleX(0);
+transition: transform 0.3s;
+}
+
+.person-card:hover { transform: translateY(-4px); border-color: var(–red-dim); }
+.person-card:hover::before { transform: scaleX(1); }
+
+.person-role {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+color: var(–red-bright);
+text-transform: uppercase;
+margin-bottom: 0.5rem;
+}
+
+.person-name {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.3rem;
+color: var(–white);
+margin-bottom: 1rem;
+font-weight: 700;
+}
+
+.person-bio {
+font-size: 0.95rem;
+color: var(–text);
+line-height: 1.7;
+}
+
+/* REMEMBRANCES */
+#remembrances { background: var(–grey1); }
+
+.primary-sources {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+}
+
+.source-item {
+display: grid;
+grid-template-columns: 80px 1fr;
+gap: 2rem;
+align-items: start;
+padding: 2rem;
+background: var(–black);
+border: 1px solid var(–grey3);
+transition: border-color 0.3s;
+}
+
+.source-item:hover { border-color: var(–red-dim); }
+
+.source-num {
+font-family: ‘Playfair Display’, serif;
+font-size: 3rem;
+font-weight: 900;
+color: var(–red-dim);
+line-height: 1;
+text-align: center;
+opacity: 0.6;
+}
+
+.source-type {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+color: var(–red-bright);
+text-transform: uppercase;
+margin-bottom: 0.4rem;
+}
+
+.source-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.1rem;
+color: var(–white);
+font-style: italic;
+margin-bottom: 0.5rem;
+}
+
+.source-desc {
+font-size: 0.95rem;
+color: var(–text);
+line-height: 1.7;
+}
+
+/* SIGNIFICANCE */
+#significance { background: var(–dark); }
+
+.sig-text {
+max-width: 780px;
+}
+
+.sig-text p {
+font-size: 1.1rem;
+line-height: 1.9;
+color: var(–text);
+margin-bottom: 1.5rem;
+}
+
+.sig-text p:first-child::first-letter {
+font-family: ‘Playfair Display’, serif;
+font-size: 4rem;
+font-weight: 900;
+color: var(–red-bright);
+float: left;
+line-height: 0.8;
+margin: 0.1em 0.1em 0 0;
+}
+
+.sig-highlight {
+border-left: 3px solid var(–red-bright);
+padding-left: 1.5rem;
+margin: 2rem 0;
+font-style: italic;
+color: var(–cream);
+font-size: 1.15rem;
+}
+
+/* TIMELINE */
+#chronology { background: var(–black); }
+
+.timeline {
+position: relative;
+padding-left: 2rem;
+}
+
+.timeline::before {
+content: ‘’;
+position: absolute;
+left: 0; top: 0; bottom: 0;
+width: 1px;
+background: linear-gradient(to bottom, var(–red-bright), var(–red-dim), transparent);
+}
+
+.timeline-item {
+position: relative;
+padding: 0 0 2.5rem 2.5rem;
+animation: fadeUp 0.5s ease both;
+}
+
+.timeline-item::before {
+content: ‘’;
+position: absolute;
+left: -4px; top: 8px;
+width: 9px; height: 9px;
+background: var(–red-bright);
+border-radius: 50%;
+border: 2px solid var(–black);
+}
+
+.timeline-date {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.7rem;
+letter-spacing: 0.15em;
+color: var(–red-bright);
+text-transform: uppercase;
+margin-bottom: 0.25rem;
+}
+
+.timeline-event {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.1rem;
+color: var(–white);
+margin-bottom: 0.25rem;
+}
+
+.timeline-detail {
+font-size: 0.95rem;
+color: var(–text);
+}
+
+/* PHOTOS */
+#photos { background: var(–grey1); }
+
+.photo-grid {
+display: grid;
+grid-template-columns: 2fr 1fr;
+grid-template-rows: auto auto;
+gap: 4px;
+}
+
+.photo-item {
+overflow: hidden;
+position: relative;
+background: var(–grey2);
+}
+
+.photo-item.large { grid-row: span 2; }
+
+.photo-item img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+filter: grayscale(30%) contrast(1.1);
+transition: filter 0.5s, transform 0.5s;
+min-height: 250px;
+}
+
+.photo-item:hover img {
+filter: grayscale(0%) contrast(1.05);
+transform: scale(1.02);
+}
+
+.photo-caption {
+position: absolute;
+bottom: 0; left: 0; right: 0;
+background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+padding: 1.5rem 1rem 0.75rem;
+font-size: 0.8rem;
+color: var(–cream-dim);
+font-style: italic;
+opacity: 0;
+transition: opacity 0.3s;
+}
+
+.photo-item:hover .photo-caption { opacity: 1; }
+
+.photo-credit {
+font-style: normal;
+font-family: ‘Special Elite’, monospace;
+font-size: 0.6rem;
+letter-spacing: 0.1em;
+color: var(–red-bright);
+display: block;
+margin-top: 0.25rem;
+}
+
+/* OTHER */
+#other { background: var(–dark); }
+
+.other-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.5rem;
+}
+
+.other-card {
+background: var(–grey1);
+border: 1px solid var(–grey3);
+padding: 1.75rem;
+display: flex;
+gap: 1.25rem;
+align-items: flex-start;
+transition: border-color 0.3s;
+}
+
+.other-card:hover { border-color: var(–red-dim); }
+
+.other-icon {
+font-size: 1.5rem;
+flex-shrink: 0;
+margin-top: 0.2rem;
+}
+
+.other-card h3 {
+font-family: ‘Playfair Display’, serif;
+font-size: 1rem;
+color: var(–cream);
+margin-bottom: 0.4rem;
+}
+
+.other-card p {
+font-size: 0.9rem;
+color: var(–text);
+line-height: 1.6;
+}
+
+/* ABOUT */
+#about { background: var(–black); }
+
+.about-content {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 5rem;
+}
+
+.about-text p {
+font-size: 1rem;
+color: var(–text);
+line-height: 1.8;
+margin-bottom: 1rem;
+}
+
+.bib-list {
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+
+.bib-list li {
+font-size: 0.9rem;
+color: var(–text);
+line-height: 1.6;
+padding-left: 1.5rem;
+text-indent: -1.5rem;
+border-bottom: 1px solid var(–grey2);
+padding-bottom: 1rem;
+}
+
+/* FOOTER */
+footer {
+background: var(–grey1);
+border-top: 1px solid var(–red-dim);
+padding: 2rem 3rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+footer p {
+font-family: ‘Special Elite’, monospace;
+font-size: 0.65rem;
+letter-spacing: 0.15em;
+color: var(–cream-dim);
+text-transform: uppercase;
+}
+
+footer .red { color: var(–red-bright); }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(24px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 0.4; }
+50% { opacity: 1; }
+}
+
+.reveal {
+opacity: 0;
+transform: translateY(30px);
+transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+opacity: 1;
+transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+.context-grid, .people-grid, .about-content, .other-grid { grid-template-columns: 1fr; }
+.photo-grid { grid-template-columns: 1fr; }
+.photo-item.large { grid-row: span 1; }
+.container { padding: 0 1.5rem; }
+nav { padding: 0 1.5rem; }
+.nav-links { gap: 1rem; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- NAV -->
+
+<nav>
+<div class="nav-brand">Dunkirk 1940 — Digital Archive</div>
+<ul class="nav-links">
+<li><a href="#context">Context</a></li>
+<li><a href="#personalities">Leaders</a></li>
+<li><a href="#remembrances">Remembrances</a></li>
+<li><a href="#significance">Significance</a></li>
+<li><a href="#chronology">Timeline</a></li>
+<li><a href="#other">Other</a></li>
+<li><a href="#about">About</a></li>
+</ul>
+</nav>
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+<div class="hero-year">May 26 – June 4, 1940</div>
+<h1 class="hero-title">Operation<br><span>Dynamo</span></h1>
+<p class="hero-subtitle">The Evacuation of Dunkirk</p>
+<div class="hero-divider"></div>
+<blockquote class="hero-quote">
+"We shall fight on the beaches, we shall fight on the landing grounds, we shall fight in the fields and in the streets, we shall never surrender."
+<cite>— Winston Churchill, June 4, 1940</cite>
+</blockquote>
+<div class="scroll-hint">↓ &nbsp; Scroll to explore &nbsp; ↓</div>
+</section>
+
+<!-- A: CONTEXT -->
+
+<section id="context">
+<div class="container">
+<p class="section-label">Section A</p>
+<h2 class="section-title">Historical Context</h2>
+<div class="context-grid reveal">
+<div class="context-card">
+<h3>What Was Dunkirk?</h3>
+<p>Operation Dynamo was the mass evacuation of Allied soldiers from the beaches of Dunkirk, France. Between May 26 and June 4, 1940, roughly 338,000 troops were rescued — far beyond the 45,000 the British government expected. The Royal Navy used warships alongside hundreds of small civilian "little ships" to pull men off the beach under constant enemy fire.</p>
+</div>
+<div class="context-card">
+<h3>The Situation in Europe</h3>
+<p>Germany launched its western offensive (Fall Gelb) on May 10, 1940, sweeping through Belgium and France with devastating speed. Within two weeks, Allied forces were pushed back to the English Channel with no land escape route. France would fall entirely on June 22, 1940 — just weeks after the evacuation ended.</p>
+</div>
+<div class="context-card">
+<h3>Canada's Role</h3>
+<p>Canada declared war on Germany on September 10, 1939 — independently, a significant moment for Canadian sovereignty. The 1st Canadian Division had already arrived in England by late 1939. While Canadian troops were not directly involved in the Dunkirk beaches, they were on standby in England throughout and their presence was part of the Allied readiness that made post-Dunkirk defense possible.</p>
+</div>
+<div class="context-card">
+<h3>Connection to Other Events</h3>
+<p>Dunkirk made the Battle of Britain (July–October 1940) possible. Without the rescued troops, Britain had no trained army left to defend itself. It also directly shaped Canada's war effort — the near-loss at Dunkirk pushed the Canadian government to accelerate troop deployment overseas, including the 2nd and 3rd Canadian Divisions.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- B: PERSONALITIES -->
+
+<section id="personalities">
+<div class="container">
+<p class="section-label">Section B</p>
+<h2 class="section-title">Personalities &amp; Leaders</h2>
+<div class="people-grid reveal">
+<div class="person-card">
+<div class="person-role">Prime Minister of the United Kingdom</div>
+<div class="person-name">Winston Churchill</div>
+<p class="person-bio">Churchill became Prime Minister on May 10, 1940 — the same day Germany invaded France. His June 4 speech following the evacuation became one of the most famous rallying calls in history. He framed a military retreat as a demonstration of resolve, fundamentally shaping how the war would be fought going forward.</p>
+</div>
+<div class="person-card">
+<div class="person-role">Architect of the Evacuation</div>
+<div class="person-name">Vice Admiral Bertram Ramsay</div>
+<p class="person-bio">Operating from the tunnels beneath Dover Castle, Ramsay organized and executed Operation Dynamo in under ten days. He coordinated hundreds of vessels, naval and civilian, to pull off what many considered impossible. Without his meticulous planning, the evacuation would have collapsed.</p>
+</div>
+<div class="person-card">
+<div class="person-role">Commander, BEF</div>
+<div class="person-name">General Lord Gort</div>
+<p class="person-bio">Commander of the British Expeditionary Force, Gort made the controversial decision to retreat to Dunkirk rather than attempt a counter-attack. His choice was criticized at the time but ultimately saved the bulk of the British Army — preserving the force that would later help liberate Europe.</p>
+</div>
+<div class="person-card">
+<div class="person-role">Civilian Hero — The Little Ships</div>
+<div class="person-name">Charles Lightoller</div>
+<p class="person-bio">A WWI Titanic survivor, Lightoller sailed his private yacht Sundowner across the Channel and returned with 130 soldiers packed into a boat built for 21. He represents the hundreds of civilian volunteers whose small boats reached the shallow beaches that larger naval vessels could not.</p>
+</div>
+<div class="person-card">
+<div class="person-role">King of the United Kingdom</div>
+<div class="person-name">King George VI</div>
+<p class="person-bio">During the Dunkirk crisis, King George VI addressed the British public, calling for a National Day of Prayer on May 26 — the same day Operation Dynamo began. His steady, calm presence throughout the war was a significant factor in maintaining civilian morale across Britain and the Commonwealth, including Canada.</p>
+</div>
+<div class="person-card">
+<div class="person-role">Canadian War Leadership</div>
+<div class="person-name">General Andrew McNaughton</div>
+<p class="person-bio">Commander of the 1st Canadian Division in England during Dunkirk. McNaughton's forces were not directly at the beaches but were the primary reserve that Britain depended on post-evacuation. The Canadian Army's readiness in England was a critical part of Allied defensive capability after the fall of France.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- C: REMEMBRANCES -->
+
+<section id="remembrances">
+<div class="container">
+<p class="section-label">Section C</p>
+<h2 class="section-title">Remembrances</h2>
+<div class="primary-sources reveal">
+<div class="source-item">
+<div class="source-num">01</div>
+<div>
+<div class="source-type">Speech — Primary Source</div>
+<div class="source-title">"We Shall Fight on the Beaches" — Winston Churchill, June 4, 1940</div>
+<p class="source-desc">Delivered to the House of Commons days after the evacuation ended, Churchill's speech is one of the most significant wartime addresses ever recorded. Full audio and text available at the Churchill Archives Centre and winstonchurchill.org.</p>
+</div>
+</div>
+<div class="source-item">
+<div class="source-num">02</div>
+<div>
+<div class="source-type">Written Testimony — Primary Source</div>
+<div class="source-title">BBC WW2 People's War Archive — Soldier Accounts</div>
+<p class="source-desc">A collection of first-hand written accounts from British soldiers who were on the Dunkirk beaches. Contributions include descriptions of waiting under air raids, wading into the sea, and the chaos of the evacuation. Available at bbc.co.uk/history/ww2peopleswar.</p>
+</div>
+</div>
+<div class="source-item">
+<div class="source-num">03</div>
+<div>
+<div class="source-type">Newsreel Footage — Primary Source</div>
+<div class="source-title">British Pathé — Dunkirk Film Collection, 1940</div>
+<p class="source-desc">Original newsreel footage from 1940 showing soldiers arriving back in England after the evacuation. One of the few moving image records of the event from the time. Available at britishpathe.com.</p>
+</div>
+</div>
+<div class="source-item">
+<div class="source-num">04</div>
+<div>
+<div class="source-type">Oral History — Primary Source</div>
+<div class="source-title">Imperial War Museum — Dunkirk Veteran Interviews</div>
+<p class="source-desc">The IWM holds recorded interviews with veterans who survived Dunkirk, including accounts from soldiers and sailors. These recordings capture the experience of the evacuation in the participants' own words. Available at iwm.org.uk/collections.</p>
+</div>
+</div>
+<div class="source-item">
+<div class="source-num">05</div>
+<div>
+<div class="source-type">Letters &amp; Documents — Primary Source</div>
+<div class="source-title">Library and Archives Canada — Canadian Soldier Letters, 1939–1940</div>
+<p class="source-desc">Personal letters and official documents from Canadian soldiers stationed in England during the Dunkirk period. These reveal how Canadian troops understood the crisis and their role in it. Available at bac-lac.gc.ca.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- PHOTO GALLERY -->
+
+<section id="photos">
+<div class="container">
+<p class="section-label">Photography</p>
+<h2 class="section-title">Images from Dunkirk</h2>
+<div class="photo-grid reveal">
+<div class="photo-item large">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Dunkirk_beaches.jpg/800px-Dunkirk_beaches.jpg" alt="British troops on Dunkirk beach, 1940" loading="lazy">
+<div class="photo-caption">
+British troops waiting on the beach at Dunkirk, May 1940.
+<span class="photo-credit">IWM H 1621 — Public domain via Wikimedia Commons</span>
+</div>
+</div>
+<div class="photo-item">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/The_British_Evacuation_From_Dunkirk_in_1940_HU2286.jpg/800px-The_British_Evacuation_From_Dunkirk_in_1940_HU2286.jpg" alt="Troops on destroyer leaving Dunkirk, 1940" loading="lazy">
+<div class="photo-caption">
+Troops on a Royal Navy destroyer leaving Dunkirk, 31 May 1940.
+<span class="photo-credit">IWM HU 2286 — Public domain via Wikimedia Commons</span>
+</div>
+</div>
+<div class="photo-item">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/The_Little_Ships_of_Dunkirk.jpg/800px-The_Little_Ships_of_Dunkirk.jpg" alt="The little ships of Dunkirk, 1940" loading="lazy">
+<div class="photo-caption">
+Civilian "little ships" used during Operation Dynamo, 1940.
+<span class="photo-credit">IWM — Public domain via Wikimedia Commons</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- D: SIGNIFICANCE -->
+
+<section id="significance">
+<div class="container">
+<p class="section-label">Section D</p>
+<h2 class="section-title">Historical Significance</h2>
+<div class="sig-text reveal">
+<p>The evacuation of Dunkirk stands as one of the most consequential events of the Second World War — not because it was a victory, but because of what it prevented. Had the British Expeditionary Force been captured on those beaches, Britain would have been left with no trained army to defend itself. The war in Europe could have ended very differently.</p>
+
+```
+<div class="sig-highlight">
+"Dunkirk was a miracle of deliverance, achieved by valour, by perseverance, by perfect discipline, by faultless service, by resource, by skill, by unconquerable fidelity."
+<cite style="display:block;font-size:0.8rem;font-style:normal;font-family:'Special Elite',monospace;color:var(--red-bright);letter-spacing:0.1em;margin-top:0.5rem;">— Winston Churchill, June 4, 1940</cite>
+</div>
+
+<p>For Canada, Dunkirk was a turning point. Canada had declared war independently in September 1939, a deliberate act that asserted its autonomy from Britain — but Dunkirk made clear just how high the stakes were. The near-collapse of the Allied position in Europe pushed the Canadian government to dramatically accelerate troop deployment overseas. The 2nd and 3rd Canadian Divisions followed quickly, and Canada's contribution to the war effort grew significantly in the months after Dunkirk.</p>
+
+<p>Beyond its military impact, Dunkirk became a cultural symbol. The "Dunkirk spirit" — the idea of ordinary civilians stepping up in a moment of national crisis — entered the public consciousness and shaped British and Commonwealth identity throughout the war. The hundreds of civilian boat owners who crossed the Channel represent one of the most remarkable examples of civilian-military cooperation in modern history.</p>
+
+<p>Dunkirk was also significant as an example of how wartime framing shapes historical memory. What was, in military terms, a retreat and near-disaster was transformed through Churchill's speech and government communication into a rallying point. Understanding that framing is part of understanding the war itself.</p>
+</div>
+```
+
+</div>
+</section>
+
+<!-- E: CHRONOLOGY -->
+
+<section id="chronology">
+<div class="container">
+<p class="section-label">Section E</p>
+<h2 class="section-title">Chronology</h2>
+<div class="timeline reveal">
+<div class="timeline-item">
+<div class="timeline-date">September 1, 1939</div>
+<div class="timeline-event">Germany invades Poland</div>
+<div class="timeline-detail">World War II begins. The invasion triggers the British and French declarations of war two days later.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">September 10, 1939</div>
+<div class="timeline-event">Canada declares war on Germany</div>
+<div class="timeline-detail">Canada's independent declaration, a week after Britain's, was a deliberate assertion of sovereignty. Parliament voted separately — a significant milestone in Canadian history.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">December 1939</div>
+<div class="timeline-event">1st Canadian Division arrives in England</div>
+<div class="timeline-detail">Canadian troops begin training and are positioned as part of the Allied defensive force in Britain.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">May 10, 1940</div>
+<div class="timeline-event">Germany launches western offensive (Fall Gelb)</div>
+<div class="timeline-detail">Germany invades France, Belgium, and the Netherlands simultaneously. The surprise Ardennes thrust catches Allied commanders completely off guard.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">May 20, 1940</div>
+<div class="timeline-event">German forces reach the English Channel</div>
+<div class="timeline-detail">Allied armies are cut off from the south. The only escape route is through the sea at Dunkirk.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">May 26, 1940</div>
+<div class="timeline-event">Operation Dynamo begins</div>
+<div class="timeline-detail">The Royal Navy begins the mass evacuation. The British government expects to save around 45,000 men before the perimeter collapses.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">May 27 – June 2, 1940</div>
+<div class="timeline-event">The little ships cross the Channel</div>
+<div class="timeline-detail">Hundreds of civilian vessels — fishing boats, pleasure craft, ferries — join the Navy to reach soldiers in shallow water. Men are pulled off beaches around the clock under Luftwaffe attack.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">June 4, 1940</div>
+<div class="timeline-event">Operation Dynamo ends — 338,226 rescued</div>
+<div class="timeline-detail">The evacuation ends. Churchill delivers his "We shall fight on the beaches" speech to Parliament. The number rescued is over seven times what was expected.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">June 22, 1940</div>
+<div class="timeline-event">France surrenders</div>
+<div class="timeline-detail">Germany occupies Western Europe. Britain and its Commonwealth allies — including Canada — now stand largely alone.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">July – October 1940</div>
+<div class="timeline-event">Battle of Britain</div>
+<div class="timeline-detail">The soldiers rescued at Dunkirk are now the core of Britain's defense. Without the evacuation, this battle could not have been fought.</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- F: OTHER -->
+
+<section id="other">
+<div class="container">
+<p class="section-label">Section F</p>
+<h2 class="section-title">Additional Resources</h2>
+<div class="other-grid reveal">
+<div class="other-card">
+<div class="other-icon">🗺️</div>
+<div>
+<h3>Maps of the Dunkirk Perimeter</h3>
+<p>Detailed maps of the Allied defensive perimeter and evacuation routes are available through the Imperial War Museum and Wikimedia Commons. These show how the German encirclement forced the retreat to the sea.</p>
+</div>
+</div>
+<div class="other-card">
+<div class="other-icon">📰</div>
+<div>
+<h3>Canadian Newspaper Coverage — June 1940</h3>
+<p>The Globe and Mail and other Canadian papers covered Dunkirk extensively. Front pages from June 4–5, 1940 show how Canadians understood the evacuation and what it meant for their soldiers abroad.</p>
+</div>
+</div>
+<div class="other-card">
+<div class="other-icon">🎵</div>
+<div>
+<h3>"There'll Always Be an England" — Vera Lynn, 1939</h3>
+<p>One of the most popular wartime songs in Britain and Canada. Vera Lynn's recordings were played extensively during and after Dunkirk and became synonymous with Allied resolve during the darkest years of the war.</p>
+</div>
+</div>
+<div class="other-card">
+<div class="other-icon">🪖</div>
+<div>
+<h3>Canadian Recruitment Posters — WWII</h3>
+<p>The Library and Archives Canada holds a collection of original WWII recruitment posters. After Dunkirk, recruitment campaigns intensified across Canada — these posters reflect the urgency of the moment.</p>
+</div>
+</div>
+<div class="other-card">
+<div class="other-icon">📸</div>
+<div>
+<h3>IWM Dunkirk Photo Collection</h3>
+<p>The Imperial War Museum holds the most comprehensive public collection of Dunkirk photographs. All images are public domain and document the evacuation from the beaches to the ships to the English ports.</p>
+</div>
+</div>
+<div class="other-card">
+<div class="other-icon">🎬</div>
+<div>
+<h3>British Pathé Newsreel Archive</h3>
+<p>Original 1940 newsreel footage of troops returning from Dunkirk is available through the British Pathé archive. These films were shown in cinemas across Britain and Canada and shaped public understanding of the evacuation.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- G: ABOUT -->
+
+<section id="about">
+<div class="container">
+<p class="section-label">Section G</p>
+<h2 class="section-title">About &amp; Sources</h2>
+<div class="about-content reveal">
+<div class="about-text">
+<p>This digital archive was created as a Grade 10 History student project for John Fraser Secondary School, Mississauga, Ontario, Canada. The topic is the Evacuation of Dunkirk (Operation Dynamo, 1940), examined with a focus on Canadian history and its connection to the broader events of World War II.</p>
+<p>All photographs used are public domain images sourced from the Imperial War Museum collection via Wikimedia Commons. All written content is original, based on research from the sources listed in the bibliography.</p>
+<p style="font-family:'Special Elite',monospace;font-size:0.75rem;letter-spacing:0.1em;color:var(--red-bright);text-transform:uppercase;margin-top:2rem;">Grade 10 History Student Project<br>John Fraser SS — Mississauga, Ontario, Canada</p>
+</div>
+<div>
+<h3 style="font-family:'Playfair Display',serif;color:var(--cream);margin-bottom:1.5rem;font-size:1.2rem;">APA Bibliography</h3>
+<ul class="bib-list">
+<li>Atkin, R. (1990). <em>Pillar of fire: Dunkirk 1940.</em> Sidgwick & Jackson.</li>
+<li>Sebag-Montefiore, H. (2006). <em>Dunkirk: Fight to the last man.</em> Harvard University Press.</li>
+<li>Veterans Affairs Canada. (2020). <em>Battle of Dunkirk.</em> Government of Canada. https://www.veterans.gc.ca/en/remembrance/wars-and-conflicts/second-world-war/canada-and-the-second-world-war/battle-of-dunkirk</li>
+<li>Imperial War Museums. (n.d.). <em>7 photos from the Dunkirk evacuations.</em> IWM. https://www.iwm.org.uk/history/7-photos-from-the-dunkirk-evacuations</li>
+<li>CBC Archives. (n.d.). <em>Canada and the Second World War.</em> CBC. https://www.cbc.ca/archives/topic/canada-and-the-second-world-war</li>
+<li>Dunkirk evacuation. (2025). In <em>Encyclopaedia Britannica.</em> https://www.britannica.com/event/Dunkirk-evacuation</li>
+<li>Churchill, W. (1940, June 4). <em>We shall fight on the beaches</em> [Speech]. The Churchill Project, Hillsdale College. https://winstonchurchill.org/resources/speeches/1940-the-finest-hour/we-shall-fight-on-the-beaches/</li>
+<li>BBC. (n.d.). <em>WW2 people's war.</em> BBC. https://www.bbc.co.uk/history/ww2peopleswar/</li>
+<li>Library and Archives Canada. (n.d.). <em>Second World War.</em> Government of Canada. https://www.bac-lac.gc.ca/eng/discover/military-heritage/second-world-war/Pages/second-world-war.aspx</li>
+<li>Wikimedia Commons. (n.d.). <em>Category: Battle of Dunkirk</em> [Photographs]. Wikimedia Foundation. https://commons.wikimedia.org/wiki/Category:Battle_of_Dunkirk</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+<p>Dunkirk 1940 — Digital Archive <span class="red">|</span> Grade 10 History, John Fraser SS</p>
+<p>Mississauga, Ontario, Canada <span class="red">|</span> Operation Dynamo, May–June 1940</p>
+</footer>
+
+<script>
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+entries.forEach(entry => {
+if (entry.isIntersecting) {
+entry.target.classList.add('visible');
+observer.unobserve(entry.target);
+}
+});
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+// Stagger timeline items
+document.querySelectorAll('.timeline-item').forEach((item, i) => {
+item.style.animationDelay = `${i * 0.08}s`;
+});
+</script>
+
+</body>
+</html>
